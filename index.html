@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Top-Up | Professional Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap');
+        body { font-family: 'Pyidaungsu', sans-serif; background-color: #0f172a; color: white; margin: 0; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
+        .tab-content { display: none; }
+        .active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-blue { background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); transition: 0.3s; }
+        .btn-blue:active { transform: scale(0.96); }
+        .nav-item { transition: 0.3s; color: #64748b; }
+        .nav-active { color: #3b82f6; transform: translateY(-3px); }
+    </style>
+</head>
+<body class="max-w-md mx-auto min-h-screen relative pb-24 border-x border-gray-800 bg-slate-900 shadow-2xl">
+
+    <header class="p-6 flex justify-between items-center border-b border-gray-800 sticky top-0 bg-slate-900/90 backdrop-blur-md z-50">
+        <div>
+            <h1 class="text-blue-400 text-xl font-bold italic tracking-tighter">FLASH <span class="text-white">TOP-UP</span></h1>
+            <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold">Premium Digital Store</p>
+        </div>
+        <div onclick="enterAdmin()" class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/30 cursor-pointer hover:bg-blue-500/20">
+            <i class="fas fa-cog text-blue-400"></i>
+        </div>
+    </header>
+
+    <main class="p-5">
+        <section id="home" class="tab-content active">
+            <h2 class="text-sm font-bold mb-5 text-gray-400 flex items-center gap-2"><i class="fas fa-layer-group"></i> SELECT CATEGORY</h2>
+            <div id="service-grid" class="grid grid-cols-2 gap-4"></div>
+        </section>
+
+        <section id="items" class="tab-content">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="goBack()" class="text-gray-400 bg-slate-800 p-2 rounded-lg"><i class="fas fa-arrow-left"></i></button>
+                <h2 id="service-title" class="text-lg font-bold text-blue-400">Items</h2>
+                <div class="w-8"></div>
+            </div>
+            <div id="items-container" class="space-y-3"></div>
+            <button onclick="switchTab('form')" class="w-full btn-blue py-4 rounded-2xl mt-8 font-bold shadow-lg shadow-blue-500/20">PROCEED TO ORDER ➔</button>
+        </section>
+
+        <section id="form" class="tab-content">
+            <div class="glass-card p-6">
+                <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">Account Identifier</label>
+                <input id="user-id" type="text" placeholder="Game ID / Player ID / Gmail" class="w-full bg-slate-800 border border-gray-700 rounded-xl p-4 text-sm mb-6 outline-none focus:border-blue-500 text-white mt-1">
+                
+                <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">Payment Method</label>
+                <div class="grid grid-cols-2 gap-3 mb-6 mt-1">
+                    <button onclick="selectPay('WavePay', this)" class="pay-btn glass-card py-3 border border-gray-700 text-xs font-bold">WavePay</button>
+                    <button onclick="selectPay('KBZPay', this)" class="pay-btn glass-card py-3 border border-gray-700 text-xs font-bold">KBZPay</button>
+                </div>
+
+                <div id="pay-box" class="hidden border-t border-gray-800 pt-5">
+                    <div class="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20 mb-5">
+                        <p class="text-[10px] text-blue-300 font-bold uppercase mb-1 text-center italic">Admin Payment Details</p>
+                        <p class="text-xs text-center mb-1">လွှဲရန်ဖုန်း: <span class="font-bold text-white">09775649834</span></p>
+                        <p class="text-xl font-bold text-center">Total: <span id="final-price" class="text-blue-400">0</span> Ks</p>
+                    </div>
+                    <label class="text-[10px] text-gray-500 block mb-2 ml-1">UPLOAD SCREENSHOT:</label>
+                    <input type="file" id="ss-input" class="w-full text-xs text-gray-400 mb-6 bg-slate-800 p-3 rounded-xl border border-dashed border-gray-600">
+                    <button onclick="handleFinalOrder()" id="order-btn" class="w-full btn-blue py-4 rounded-2xl font-bold uppercase tracking-widest">Submit Order 🚀</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="history" class="tab-content">
+            <h2 class="text-xl font-bold mb-6">Order History</h2>
+            <div id="history-list" class="space-y-4"></div>
+        </section>
+
+        <section id="admin" class="tab-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-red-500 italic"><i class="fas fa-user-shield"></i> ADMIN PANEL</h2>
+                <button onclick="goBack()" class="bg-gray-800 px-4 py-2 rounded-lg text-[10px] font-bold">EXIT</button>
+            </div>
+
+            <div class="glass-card p-5 mb-8 border-blue-500/20">
+                <h3 class="text-[10px] font-bold mb-4 text-blue-400 uppercase tracking-widest">Inventory Management</h3>
+                <select id="add-to-service" class="w-full bg-slate-900 border border-gray-700 p-3 rounded-xl text-xs mb-3 text-white outline-none"></select>
+                <input id="new-item-name" type="text" placeholder="Item Name (e.g. 28 Diamonds)" class="w-full bg-slate-900 border border-gray-700 p-3 rounded-xl text-xs mb-3 outline-none">
+                <input id="new-item-price" type="number" placeholder="Price (Ks)" class="w-full bg-slate-900 border border-gray-700 p-3 rounded-xl text-xs mb-4 outline-none">
+                <button onclick="addNewItem()" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl text-xs font-bold shadow-lg shadow-green-500/10">SAVE NEW ITEM +</button>
+            </div>
+
+            <h3 class="text-[10px] font-bold mb-4 border-b border-gray-800 pb-2 text-gray-500 uppercase tracking-widest">Active Orders</h3>
+            <div id="admin-orders" class="space-y-4"></div>
+        </section>
+    </main>
+
+    <nav class="fixed bottom-0 max-w-md w-full bg-slate-900/95 backdrop-blur-xl border-t border-gray-800 flex justify-around py-4 rounded-t-[30px] z-50">
+        <button onclick="switchTab('home')" class="nav-item flex flex-col items-center nav-active" id="nav-home">
+            <i class="fas fa-th-large text-lg"></i>
+            <span class="text-[10px] font-bold mt-1">STORE</span>
+        </button>
+        <button onclick="switchTab('history')" class="nav-item flex flex-col items-center" id="nav-history">
+            <i class="fas fa-clock-rotate-left text-lg"></i>
+            <span class="text-[10px] font-bold mt-1">HISTORY</span>
+        </button>
+    </nav>
+
+    <script>
+        // --- ၁။ CONFIGURATION (လုပ်ဆောင်ချက်များ) ---
+        const TG_TOKEN = '8456687270:AAFpklzv46cJ7A4uCfA6v4b5c7-r35vDnJg'; // သင့် Token
+        const TG_CHAT_ID = '5965428729'; // သင့် Chat ID
+
+        const DEFAULT_DATA = {
+            "Mobile Legend": [{name: "💎 11 Diamonds", price: 800}, {name: "💎 56 Diamonds", price: 3800}],
+            "PUBG Mobile": [{name: "60 UC", price: 3800}, {name: "325 UC", price: 18500}],
+            "Canva Pro": [{name: "1 Year Admin", price: 3500}],
+            "Capcut Pro": [{name: "CapCut 1 Month", price: 10000}]
+        };
+
+        let ITEMS = JSON.parse(localStorage.getItem('flash_items_v2')) || DEFAULT_DATA;
+        let selSvc = "", selItm = "", selPrc = 0, selPay = "";
+
+        function init() {
+            const grid = document.getElementById('service-grid');
+            const dropdown = document.getElementById('add-to-service');
+            grid.innerHTML = ""; dropdown.innerHTML = "";
+            
+            Object.keys(ITEMS).forEach(s => {
+                grid.innerHTML += `
+                    <div onclick="openSvc('${s}')" class="glass-card p-6 flex flex-col items-center cursor-pointer border border-transparent hover:border-blue-500/50 transition-all hover:bg-slate-800/50">
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 mb-3"><i class="fas fa-bolt"></i></div>
+                        <span class="text-[10px] font-black text-center text-gray-200 uppercase tracking-tighter">${s}</span>
+                    </div>`;
+                dropdown.innerHTML += `<option value="${s}">${s}</option>`;
+            });
+            renderHistory();
+        }
+
+        // --- ၂။ Admin Logic (Item Manager) ---
+        function addNewItem() {
+            const svc = document.getElementById('add-to-service').value;
+            const name = document.getElementById('new-item-name').value;
+            const price = document.getElementById('new-item-price').value;
+            if(!name || !price) return alert("အချက်အလက် ဖြည့်သွင်းပါဗျာ။");
+            ITEMS[svc].push({ name: name, price: parseInt(price) });
+            localStorage.setItem('flash_items_v2', JSON.stringify(ITEMS));
+            alert("Item အသစ်ကို သိမ်းဆည်းလိုက်ပါပြီ။ ✅");
+            init();
+            document.getElementById('new-item-name').value = "";
+            document.getElementById('new-item-price').value = "";
+        }
+
+        // --- ၃။ User UI Logic ---
+        function openSvc(s) {
+            selSvc = s; switchTab('items');
+            document.getElementById('service-title').innerText = s;
+            const cont = document.getElementById('items-container');
+            cont.innerHTML = ITEMS[s].map((item, idx) => `
+                <div onclick="selProduct('${item.name}', ${item.price}, this)" class="item-card glass-card p-4 flex justify-between items-center cursor-pointer border border-transparent">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-gray-200">${item.name}</span>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest">Fast Delivery</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-blue-400 font-black text-sm">${item.price.toLocaleString()} Ks</span>
+                        <button onclick="delItem('${s}', ${idx})" class="text-red-500/50 text-xs ml-2 hidden adm-btn hover:text-red-500"><i class="fas fa-trash-can"></i></button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function delItem(svc, idx) {
+            if(confirm("ဤ Item ကို အပြီးဖျက်မည်မှာ သေချာပါသလား?")) {
+                ITEMS[svc].splice(idx, 1);
+                localStorage.setItem('flash_items_v2', JSON.stringify(ITEMS));
+                openSvc(svc);
+            }
+        }
+
+        function selProduct(n, p, el) {
+            selItm = n; selPrc = p;
+            document.querySelectorAll('.item-card').forEach(c => {
+                c.style.borderColor = "transparent";
+                c.style.backgroundColor = "rgba(30, 41, 59, 0.7)";
+            });
+            el.style.borderColor = "#00d2ff";
+            el.style.backgroundColor = "rgba(0, 210, 255, 0.05)";
+        }
+
+        function selectPay(m, el) {
+            selPay = m;
+            document.querySelectorAll('.pay-btn').forEach(b => {
+                b.classList.remove('border-blue-500', 'bg-blue-500/10', 'text-blue-400');
+            });
+            el.classList.add('border-blue-500', 'bg-blue-500/10', 'text-blue-400');
+            document.getElementById('pay-box').classList.remove('hidden');
+            document.getElementById('final-price').innerText = selPrc.toLocaleString();
+        }
+
+        // --- ၄။ Telegram & Order Logic (သင်တောင်းဆိုထားသော ပုံစံအတိုင်း) ---
+        async function handleFinalOrder() {
+            const uid = document.getElementById('user-id').value;
+            const file = document.getElementById('ss-input').files[0];
+            const btn = document.getElementById('order-btn');
+
+            if(!uid || !file) return alert("Account ID နှင့် Payment Screenshot ထည့်ပေးပါဗျာ။");
+
+            btn.disabled = true;
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin mr-2'></i> PROCESSING...";
+
+            const oid = "ORD-" + Math.floor(Math.random()*900000 + 100000);
+            const dateStr = new Date().toLocaleString();
+            
+            // Telegram သို့ပို့မည့် စာသားပုံစံ
+            const msg = `🚀 *NEW TOP-UP ORDER*\n` +
+                        `━━━━━━━━━━━━━━━\n` +
+                        `📦 *Item:* ${selItm}\n` +
+                        `💰 *Price:* ${selPrc} Ks\n` +
+                        `👤 *Acc-ID:* ${uid}\n` +
+                        `💳 *Payment:* ${selPay}\n` +
+                        `📅 *Date:* ${dateStr}\n` +
+                        `━━━━━━━━━━━━━━━\n` +
+                        `🆔 Order ID: ${oid}`;
+
+            const formData = new FormData();
+            formData.append('chat_id', TG_CHAT_ID);
+            formData.append('photo', file);
+            formData.append('caption', msg);
+            formData.append('parse_mode', 'Markdown');
+
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if(data.ok) {
+                    // History ထဲသိမ်းမည်
+                    const orderData = { id: oid, item: selItm, price: selPrc, acc: uid, pay: selPay, status: 'Pending', date: dateStr };
+                    let hist = JSON.parse(localStorage.getItem('flash_orders_v2') || "[]");
+                    hist.unshift(orderData);
+                    localStorage.setItem('flash_orders_v2', JSON.stringify(hist));
+
+                    alert("Order တင်လိုက်ပါပြီ။ Admin က ခဏအတွင်း စစ်ဆေးပေးပါမည်။ ✨");
+                    switchTab('history'); renderHistory();
+                } else {
+                    alert("Telegram Error: Bot Token သို့မဟုတ် Chat ID မှားယွင်းနေပါသည်။");
+                }
+            } catch (e) { alert("Connection Error! အင်တာနက် လိုင်းကို စစ်ဆေးပေးပါ။"); }
+            finally { btn.disabled = false; btn.innerText = "Submit Order 🚀"; }
+        }
+
+        // --- ၅။ History & Admin Control (Confirm/Cancel) ---
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            const hist = JSON.parse(localStorage.getItem('flash_orders_v2') || "[]");
+            
+            if(!hist.length) {
+                list.innerHTML = `<div class="text-center py-20"><i class="fas fa-receipt text-4xl text-gray-800 mb-3"></i><p class="text-xs text-gray-600 italic font-bold uppercase tracking-widest">No orders found</p></div>`;
+                return;
+            }
+
+            list.innerHTML = hist.map(o => {
+                let statusClass = "text-yellow-400";
+                let statusText = "Pending ⏳";
+                let statusDesc = "Admin က စစ်ဆေးနေပါသည်...";
+
+                if(o.status === 'Done') {
+                    statusClass = "text-green-400";
+                    statusText = "Done ✅";
+                    statusDesc = "သင့် Order ကို အောင်မြင်စွာ ဖြည့်သွင်းပြီးပါပြီ။";
+                } else if(o.status === 'Cancelled') {
+                    statusClass = "text-red-400";
+                    statusText = "Cancelled ❌";
+                    statusDesc = "Order မရသေးပါ။ ငွေပြန်ယူရန် Admin ကို ဆက်သွယ်ပါ။";
+                }
+
+                return `
+                    <div class="glass-card p-5 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <p class="text-[9px] text-gray-500 font-bold tracking-tighter uppercase">${o.id} • ${o.date}</p>
+                                <h4 class="font-bold text-sm text-gray-100">${o.item}</h4>
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-slate-800 rounded-md ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="bg-black/20 p-3 rounded-xl">
+                            <p class="text-[11px] font-bold ${statusClass} leading-tight">${statusDesc}</p>
+                            ${o.status === 'Cancelled' ? `<a href="https://t.me/shine180724" class="text-[9px] text-white underline mt-2 block italic">Contact Support</a>` : ''}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function enterAdmin() {
+            if(prompt("Admin Password ရိုက်ထည့်ပါ:") === "Shine@180724") {
+                switchTab('admin'); renderAdminOrders();
+                document.querySelectorAll('.adm-btn').forEach(b => b.classList.remove('hidden'));
+            } else {
+                alert("Password မှားယွင်းနေပါသည်။");
+            }
+        }
+
+        function renderAdminOrders() {
+            const list = document.getElementById('admin-orders');
+            const hist = JSON.parse(localStorage.getItem('flash_orders_v2') || "[]");
+            const pending = hist.filter(o => o.status === 'Pending');
+            
+            if(!pending.length) {
+                list.innerHTML = `<p class="text-center text-gray-600 text-[10px] py-10 uppercase tracking-widest font-bold">No Pending Orders</p>`;
+                return;
+            }
+
+            list.innerHTML = pending.map(o => `
+                <div class="glass-card p-4 border-l-4 border-blue-500">
+                    <p class="text-[9px] text-gray-500">${o.id} | ${o.date}</p>
+                    <div class="text-xs font-bold mt-1">${o.item} - ${o.price}Ks</div>
+                    <div class="text-[11px] text-blue-300 font-bold mb-4">Account: ${o.acc} (${o.pay})</div>
+                    <div class="flex gap-2">
+                        <button onclick="changeOrderStatus('${o.id}', 'Done')" class="flex-1 bg-green-600 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-500/10">Confirm ✅</button>
+                        <button onclick="changeOrderStatus('${o.id}', 'Cancelled')" class="flex-1 bg-red-600 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-red-500/10">Cancel ❌</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function changeOrderStatus(oid, newStat) {
+            let hist = JSON.parse(localStorage.getItem('flash_orders_v2') || "[]");
+            let idx = hist.findIndex(o => o.id === oid);
+            hist[idx].status = newStat;
+            localStorage.setItem('flash_orders_v2', JSON.stringify(hist));
+            alert(`Order status updated to ${newStat}!`);
+            renderAdminOrders(); renderHistory();
+        }
+
+        // Navigation & UI Helpers
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            
+            // Handle nav colors
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
+            if(id === 'home' || id === 'items' || id === 'form') document.getElementById('nav-home').classList.add('nav-active');
+            if(id === 'history') document.getElementById('nav-history').classList.add('nav-active');
+        }
+
+        function goBack() { switchTab('home'); }
+        init();
+    </script>
+</body>
+</html>
